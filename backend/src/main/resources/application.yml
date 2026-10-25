@@ -1,5 +1,6 @@
+
 server:
-  port: 8080
+  port: ${PORT:8080}
   shutdown: graceful
   tomcat:
     connection-timeout: 10s
@@ -12,6 +13,7 @@ spring:
     url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
     hikari:
       connection-timeout: 10000
       maximum-pool-size: 10
@@ -19,17 +21,18 @@ spring:
   lifecycle:
     timeout-per-shutdown-phase: 20s
 
-  spring:
-    jpa:
-      open-in-view: false
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
       hibernate:
-        ddl-auto: validate
-      properties:
-        hibernate:
-          jdbc:
-            time_zone: UTC
-          show_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          time_zone: UTC
+        show_sql: true
 
+  # Keep disabled until PostgreSQL migrations are checked.
   flyway:
     enabled: false
 
@@ -44,57 +47,69 @@ spring:
         registration:
           google:
             client-id: ${GOOGLE_CLIENT_ID}
-	    client-secret: ${GOOGLE_CLIENT_SECRET}
-            scope: openid,profile,email
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            scope:
+              - openid
+              - profile
+              - email
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
 
 app:
   frontend-origin: ${FRONTEND_ORIGIN:http://localhost:5173}
+
   jwt:
-    secret: ${JWT_SECRET}       # required, >= 32 bytes, never commit a real one
+    secret: ${JWT_SECRET}
     expiration-minutes: ${JWT_EXPIRATION_MINUTES:120}
-  rate-limit:                        # sliding windows, per IP / email / user; see OPERATIONS_AND_DEPLOYMENT.md
+
+  rate-limit:
     enabled: ${RATE_LIMIT_ENABLED:true}
-    login-per-ip: 30                 # per 15 min
-    login-per-email: 10              # per 15 min
-    register-per-ip: 10              # per hour
-    forgot-per-ip: 10                # per hour
-    forgot-per-email: 3              # per hour
-    reset-per-ip: 10                 # per hour
-    messages-per-minute: 60          # per user
-    password-change-per-user: 5      # per 15 min
+    login-per-ip: 30
+    login-per-email: 10
+    register-per-ip: 10
+    forgot-per-ip: 10
+    forgot-per-email: 3
+    reset-per-ip: 10
+    messages-per-minute: 60
+    password-change-per-user: 5
+
   password-reset:
     ttl-minutes: 30
+
   mail:
-    mode: ${MAIL_MODE:console}       # console = DEV ONLY (link printed in log); smtp = real email
-    from: ${MAIL_FROM:rohithgxowda001@gmail.com}
+    mode: ${MAIL_MODE:console}
+    from: ${MAIL_FROM:no-reply@example.com}
+
   storage:
-    dir: ${UPLOAD_DIR:./uploads}      # keep OUTSIDE source control and back it up together with the database
+    dir: ${UPLOAD_DIR:./uploads}
     max-bytes: 26214400
     max-voice-bytes: 10485760
-  ai:                                # optional AI translation + summaries; disabled unless you choose a provider
-    mode: ${AI_MODE:disabled}        # disabled | ollama (local, free, private) | openai (any OpenAI-compatible service)
+
+  ai:
+    mode: ${AI_MODE:disabled}
     base-url: ${AI_BASE_URL:http://localhost:11434}
-    api-key: ${AI_API_KEY:}          # only for mode=openai; backend environment only, never sent to the browser
+    api-key: ${AI_API_KEY:}
     model: ${AI_MODEL:llama3.2}
     timeout-seconds: 30
-    translate-per-hour: 60           # per user
-    summary-per-hour: 10             # per user
-  calls:                            # WebRTC calls: STUN is enough on most home networks; strict firewalls need a TURN relay
+    translate-per-hour: 60
+    summary-per-hour: 10
+
+  calls:
     stun-urls: ${CALL_STUN_URLS:stun:stun.l.google.com:19302}
-    turn-urls: ${CALL_TURN_URLS:}            # e.g. turn:turn.example.com:3478,turns:turn.example.com:5349
-    turn-secret: ${CALL_TURN_SECRET:}        # coturn use-auth-secret: per-user logins that expire after an hour (preferred)
-    turn-username: ${CALL_TURN_USERNAME:}    # only if you cannot use a secret
+    turn-urls: ${CALL_TURN_URLS:}
+    turn-secret: ${CALL_TURN_SECRET:}
+    turn-username: ${CALL_TURN_USERNAME:}
     turn-credential: ${CALL_TURN_CREDENTIAL:}
+
   scheduler:
-    enabled: ${SCHEDULER_ENABLED:true}   # delivers scheduled messages; polls every 15 s
-  ops:                               # HTTP Basic login for /actuator/* (except /actuator/health)
+    enabled: ${SCHEDULER_ENABLED:true}
+
+  ops:
     user: ${OPS_USER:realchat-ops}
-    password: ${OPS_PASSWORD:cr9dIJUNwRExl0Hs6mtjSyL9JX4dW7cI}
+    password: ${OPS_PASSWORD}
+
   oauth:
     backend-base-url: ${BACKEND_BASE_URL:http://localhost:8080}
     frontend-base-url: ${FRONTEND_BASE_URL:http://localhost:5173}
-    # Where the browser lands after a successful or failed provider login
     success-redirect: ${OAUTH_SUCCESS_REDIRECT:http://localhost:5173/oauth/callback}
     failure-redirect: ${OAUTH_FAILURE_REDIRECT:http://localhost:5173/login?oauth_error=1}
 
@@ -105,10 +120,10 @@ management:
         include: health,info,metrics
   endpoint:
     health:
-      show-details: when-authorized  # public callers only see UP/DOWN
+      show-details: when-authorized
       roles: OPS
       probes:
-        enabled: true                # /actuator/health/liveness and /readiness
+        enabled: true
 
 logging:
   pattern:
