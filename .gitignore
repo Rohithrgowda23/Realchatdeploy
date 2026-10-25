@@ -1,0 +1,15 @@
+# secrets / local config
+.env
+.env.*
+!.env.example
+set-env.ps1
+application-local.yml
+# build output & deps
+node_modules/
+dist/
+target/
+# uploads, logs, IDE
+uploads/
+*.log
+.idea/
+.vscode/
