@@ -30,9 +30,9 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         jdbc:
           time_zone: UTC
-        show_sql: true
+        show_sql: false
 
-  # Keep disabled until PostgreSQL migrations are checked.
+  # Keep disabled until all existing migrations are PostgreSQL-compatible.
   flyway:
     enabled: false
 
