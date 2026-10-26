@@ -7,6 +7,7 @@ import { InviteSection, JoinRequestsSection } from './invites.jsx';
 import ConnectedAccounts from './ConnectedAccounts.jsx';
 import PasswordSection from './PasswordSection.jsx';
 import { AiStatusSection } from './ai.jsx';
+import DeleteAccount from './DeleteAccount.jsx';
 import { Avatar, Confirm, Modal, UserPicker, btnDanger, btnGhost, btnPrimary, inputCls } from './components.jsx';
 
 export function NewChatDialog({ onClose }) {
@@ -194,9 +195,20 @@ export function SettingsDialog({ onClose }) {
         </section>
         <AiStatusSection />
         <PasswordSection />
+
         <ConnectedAccounts />
         <SessionsSection />
-        <button className={`${btnGhost} w-full`} onClick={logout}><LogOut size={16} /> Sign out</button>
+
+        {/* Permanently delete the current account */}
+        <DeleteAccount />
+
+        <button
+            className={`${btnGhost} w-full`}
+            onClick={logout}
+        >
+          <LogOut size={16} /> Sign out
+        </button>
+
       </Modal>
   );
 }
