@@ -33,7 +33,7 @@ describe('Login', () => {
         await userEvent.type(screen.getByLabelText('Password'), 'secret-pass');
         await userEvent.click(screen.getByRole('button', { name: 'Sign in' }));
         await waitFor(() => expect(useStore.getState().token).toBe('jwt-1'));
-        expect(api.post).toHaveBeenCalledWith('/auth/login', { email: 'ann@example.com', password: 'secret-pass' });
+        expect(api.post).toHaveBeenCalledWith('/api/auth/login', { email: 'ann@example.com', password: 'secret-pass' });
         expect(sessionStorage.getItem('token')).toBe('jwt-1');
         expect(JSON.stringify(sessionStorage)).not.toContain('secret-pass');
     });

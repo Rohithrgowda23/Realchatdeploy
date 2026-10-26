@@ -102,7 +102,7 @@ export function Login() {
     const [params] = useSearchParams();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const { submit, busy, errors, setErrors } = useAuthSubmit('/auth/login');
+    const { submit, busy, errors, setErrors } = useAuthSubmit('/api/auth/login');
     const onSubmit = (e) => {
         e.preventDefault();
         const er = {};
@@ -129,7 +129,7 @@ export function Login() {
 
 export function Register() {
     const [f, setF] = useState({ name: '', email: '', password: '', confirm: '' });
-    const { submit, busy, errors, setErrors } = useAuthSubmit('/auth/register');
+    const { submit, busy, errors, setErrors } = useAuthSubmit('/api/auth/register');
     const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
     const onSubmit = (e) => {
         e.preventDefault();
