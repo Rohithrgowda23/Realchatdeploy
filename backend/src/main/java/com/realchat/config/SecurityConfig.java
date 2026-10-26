@@ -147,7 +147,7 @@ public class SecurityConfig {
                 "Origin"
         ));
 
-        cors.setAllowCredentials(false);
+        cors.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source =
                 new UrlBasedCorsConfigurationSource();
