@@ -1,104 +1,174 @@
-# RealChat
+# RealChat — Real-Time Messaging Application
 
-Real-time chat: React + Vite + Tailwind frontend, Spring Boot 3.2 (Java 17) + MySQL backend, JWT auth, STOMP over SockJS.
-No Docker and no paid services.
+RealChat is a full-stack messaging application built with **Java, Spring Boot, React, and PostgreSQL**. It provides direct and group conversations, photo sharing, secure account management, and AI-powered features for translating messages and summarizing conversations.
 
+## Live Demo
+
+**Frontend:** https://realchatdeploy.vercel.app/
+
+## Features
+
+### Messaging
+- Real-time messaging between users
+- Direct conversations and group chats
+- Photo sharing and attachment support
+- Message deletion with **Delete for Me** and **Delete for Everyone**
+- Message replies and forwarding support
+
+### Authentication and Account Management
+- Secure authentication and authorization
+- User profile management
+- Session management
+- Connected account support
+- Permanent account deletion
+
+### AI-Powered Features
+- **AI Message Translation:** Translate text messages using an AI provider.
+- **AI Conversation Summaries:** Generate summaries of selected messages within a conversation.
+- **Ollama Cloud Integration:** Connect to an OpenAI-compatible AI API through the Spring Boot backend.
+
+### User Experience
+- Responsive React interface
+- Dark and light themes
+- User settings and profile customization
+- Blocked-user management
+
+## Technology Stack
+
+| Layer | Technologies |
+|---|---|
+| Backend | Java 17, Spring Boot |
+| Security | Spring Security, JWT-based authentication |
+| Frontend | React.js, Vite, JavaScript |
+| Database | PostgreSQL |
+| Database migrations | Flyway |
+| APIs | REST APIs |
+| Real-time communication | WebSocket |
+| AI integration | Ollama Cloud, OpenAI-compatible API |
+| Backend deployment | Render |
+| Frontend deployment | Vercel |
+| Build tools | Maven, npm |
+
+## Architecture
+
+```text
+React + Vite Frontend
+        |
+        | REST API / WebSocket
+        v
+Spring Boot Backend
+        |
+        +---- PostgreSQL
+        |
+        +---- Flyway Migrations
+        |
+        +---- Ollama Cloud API
+              |
+              +---- Message Translation
+              +---- Conversation Summaries
 ```
-realchat/
-  backend/    Spring Boot (Maven)      http://localhost:8080
-  frontend/   React (Vite)             http://localhost:5173
-  database/   init.sql + schema notes  (schema is applied by Flyway)
-  set-env.example.ps1                  copy to set-env.ps1 (git-ignored)
+
+## Getting Started
+
+### Prerequisites
+
+Install the following tools:
+
+- Java 17
+- Maven
+- Node.js and npm
+- PostgreSQL
+
+### 1. Clone the repository
+
+```bash
+git clone <YOUR_GITHUB_REPOSITORY_URL>
+cd realchatdeploy
 ```
 
-## What works / what is not built
+Replace `<YOUR_GITHUB_REPOSITORY_URL>` with your actual repository URL.
 
-**Version 1:** registration/login (BCrypt, JWT), user search, profile, direct and group chat, roles and group management,
-persisted messages with pagination, real-time delivery, typing, presence, unread counts, read ticks, reply, edit, delete,
-reactions, per-chat search, pin/mute/archive, block, dark/light theme, reconnect with history recovery.
+### 2. Configure the backend
 
-**Version 2 (migration `V2__messages_saved_audit_sessions.sql`):**
-* **Forwarding** with optional caption and original-sender attribution. You must be able to read the source and post in the destination.
-* **Delete for me** (hidden per user, excluded from history, search and saved) and **delete for everyone** (author, or group owner/admin). Edits are limited to 24 h and authors only. Reply previews are clickable and jump to the original.
-* **Saved messages** screen (private per user, search, pagination; access re-checked on every read).
-* **Global message search** with conversation, date filters and pagination; only conversations you currently belong to; plain-substring matching so `%`, `_` and quotes are safe.
-* **Group activity history** (owner/admin only; written in the same transaction as the action) and **announcement-only mode** enforced on the server.
-* **Session / device management:** every JWT carries a server-side session id, so logout and "sign out device / all others" really invalidate tokens (REST and new WebSocket connections). Already-open sockets are re-checked only on reconnect.
+Configure the database connection and required application properties using your local environment.
 
-**Not implemented yet:** OAuth (Google/GitHub) login, rate limiting, password recovery, invite links and join requests, @mentions,
-attachments / media gallery / voice messages, scheduled messages, stories, WebRTC calls and call history, AI translation and summaries,
-Actuator monitoring, backup scripts, deployment docs, a persisted notifications list, frontend and integration tests.
-No end-to-end encryption is claimed. Existing users must sign in again after upgrading (old tokens have no session id).
+Example environment variables for AI integration:
 
-## Prerequisites (Windows)
+```properties
+AI_MODE=openai
+AI_BASE_URL=https://ollama.com/v1
+AI_API_KEY=<YOUR_OLLAMA_API_KEY>
+AI_MODEL=<SUPPORTED_OLLAMA_CLOUD_MODEL>
+```
 
-JDK 17+, Maven 3.9+, Node.js 18+ (npm), MySQL 8 running on `localhost:3306`.
-Check: `java -version`, `mvn -v`, `node -v`, `npm -v`, `mysql --version`.
+Use a model ID supported by your Ollama Cloud account. Keep API keys and database credentials out of source control.
 
-## Run
+### 3. Start the backend
 
-```powershell
-# 1) Start MySQL (service "MySQL80", or MySQL Workbench / services.msc)
-# 2) Environment for this PowerShell window (edit set-env.ps1 if your password differs)
-cd realchat
-. .\set-env.ps1
+From the backend directory, run:
 
-# 3) Backend  (creates realchat_db if missing and runs the Flyway migration)
-cd backend
+```bash
 mvn spring-boot:run
+```
 
-# 4) Frontend, in a second PowerShell window
-cd realchat\frontend
+Ensure your PostgreSQL database is running and the database configuration is correct before starting the application.
+
+### 4. Start the frontend
+
+Open another terminal:
+
+```bash
+cd frontend
 npm install
 npm run dev
 ```
 
-Open http://localhost:5173, register two accounts (second one in a private window), start a chat, create a group.
+Open the local URL displayed by Vite in your terminal.
 
-Config (environment variables): `DB_URL` (default `jdbc:mysql://localhost:3306/realchat_db?...`), `DB_USERNAME`,
-`DB_PASSWORD` (required), `JWT_SECRET` (required, 32+ chars), `JWT_EXPIRATION_MINUTES` (default 120),
-`FRONTEND_ORIGIN` (default `http://localhost:5173`). Secrets are never in source control or sent to the frontend.
+## AI Integration
 
-## Tests and build
+RealChat integrates with an OpenAI-compatible API endpoint provided by Ollama Cloud.
 
-```powershell
-cd backend;  mvn test                 # JWT, BCrypt and ChatService access-control unit tests (no DB needed)
-cd frontend; npm run build            # production build into frontend/dist
-```
+**Message translation**
+1. Open a conversation containing text messages.
+2. Open the message action bar.
+3. Select the translation option.
+4. Choose the target language and request the translation.
 
-## How real-time is secured
+**Conversation summarization**
+1. Open a conversation.
+2. Open the summarization feature.
+3. Select a supported message range.
+4. Generate a summary.
 
-* JWT is sent in the STOMP `CONNECT` frame; an invalid token closes the connection.
-* Clients may subscribe only to `/user/queue/events`, `/user/queue/errors` and `/topic/presence`; sends are limited to `/app/**`.
-* The server pushes each event to every *current* member's private queue, so there is no conversation topic to guess,
-  and removed members stop receiving events at once.
-* The message sender is taken from the authenticated principal; ids in payloads are never trusted. Membership and roles
-  are re-read from MySQL on every call. Non-members get 404 for conversations they are not in.
-* Messages are validated and saved to MySQL before anything is broadcast.
+Selected message text, sender names, timestamps, and other data described by the application's AI interface may be sent to the configured AI provider. Review the privacy implications before using the feature with sensitive conversations.
 
-## API overview (all except `/api/auth/*` need `Authorization: Bearer <jwt>`)
+## Deployment
 
-| Area | Endpoints |
-|---|---|
-| Auth | `POST /api/auth/register`, `POST /api/auth/login` |
-| Users | `GET/PUT /api/users/me`, `GET /api/users/search?q=`, `GET /api/users/blocked`, `POST/DELETE /api/users/{id}/block`, `GET /api/presence` |
-| Conversations | `GET /api/conversations`, `POST /direct`, `POST /groups`, `GET/PATCH /{id}`, `PATCH /{id}/settings`, `POST /{id}/read`, `POST /{id}/leave`, `POST /{id}/transfer` |
-| Members | `POST /{id}/members`, `DELETE /{id}/members/{userId}`, `PUT /{id}/members/{userId}/role` |
-| Messages | `GET/POST /api/conversations/{id}/messages`, `GET .../messages/search?q=`, `PUT/DELETE /api/messages/{id}`, `POST /api/messages/{id}/reactions` |
-| WebSocket | endpoint `/ws`; send `/app/chat.send`, `/app/chat.typing`; receive on `/user/queue/events` |
+- **Frontend:** Vercel
+- **Backend:** Render
+- **Database:** PostgreSQL
 
-Errors are always `{ "status": 400, "message": "...", "fields": { ... } }`.
+Configure production environment variables in the hosting dashboard. Never commit production secrets, API keys, passwords, or private connection strings to GitHub.
 
-## Security notes
+## Future Improvements
 
-The JWT (2 h lifetime) is kept in `sessionStorage`, so it disappears when the tab closes. That is exposed to XSS like any
-script-readable storage; an httpOnly cookie would avoid that but needs CSRF protection and cookie-based STOMP auth. Presence
-is in memory (single backend instance); use Redis only if you later run several instances.
+- AI-assisted reply suggestions
+- Enhanced media management
+- Improved message search
+- Additional privacy and account-security controls
+- Expanded automated testing and monitoring
 
-## Troubleshooting
+## Author
 
-* `Could not resolve placeholder 'DB_PASSWORD'/'JWT_SECRET'` - run `. .\set-env.ps1` in the same window.
-* `Access denied for user 'root'` - wrong `DB_PASSWORD`.
-* `Communications link failure` - MySQL is not running on 3306.
-* Chat list loads but no live messages - the backend must be on 8080; the Vite proxy forwards `/api` and `/ws`.
-* Port in use - stop the other process or change `server.port`.
+**Rohith R G Gowda**
+
+Java Full Stack Developer
+
+- Portfolio: https://rohithgowda.netlify.app/
+- LinkedIn: https://linkedin.com/in/rohithrgowda
+- GitHub: https://github.com/Rohithrgowda23
+
+## License
+
+Choose and add a license file before distributing the project for reuse.
