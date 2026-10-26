@@ -16,25 +16,25 @@ export function NotificationsDialog({ onClose }) {
     const load = async (append) => {
         const before = append && items?.length ? items[items.length - 1].id : undefined;
         try {
-            const { data } = await api.get('/notifications', { params: { before, size: 20 } });
+            const { data } = await api.get('/api/notifications', { params: { before, size: 20 } });
             setItems((c) => (append ? [...(c || []), ...data] : data)); setMore(data.length === 20);
         } catch (e) { toast(errMsg(e), 'error'); setItems((c) => c || []); }
     };
     useEffect(() => { load(false); }, []); // eslint-disable-line
 
     const act = async (fn) => { try { await fn(); } catch (e) { toast(errMsg(e), 'error'); } loadNotifMeta(); };
-    const markAll = () => act(async () => { await api.post('/notifications/read'); setItems((l) => l.map((n) => ({ ...n, read: true }))); });
-    const dismiss = (n) => act(async () => { await api.delete(`/notifications/${n.id}`); setItems((l) => l.filter((x) => x.id !== n.id)); });
-    const clearAll = () => act(async () => { await api.delete('/notifications'); setItems([]); setMore(false); });
+    const markAll = () => act(async () => { await api.post('/api/notifications/read'); setItems((l) => l.map((n) => ({ ...n, read: true }))); });
+    const dismiss = (n) => act(async () => { await api.delete(`/api/notifications/${n.id}`); setItems((l) => l.filter((x) => x.id !== n.id)); });
+    const clearAll = () => act(async () => { await api.delete('/api/notifications'); setItems([]); setMore(false); });
     const go = async (n) => {
-        if (!n.read) { await api.post('/notifications/read', { ids: [n.id] }).catch(() => {}); setItems((l) => l.map((x) => (x.id === n.id ? { ...x, read: true } : x))); loadNotifMeta(); }
+        if (!n.read) { await api.post('/api/notifications/read', { ids: [n.id] }).catch(() => {}); setItems((l) => l.map((x) => (x.id === n.id ? { ...x, read: true } : x))); loadNotifMeta(); }
         if (n.type === 'MENTION' && n.conversationId && n.messageId) { jumpTo(n.conversationId, n.messageId); onClose(); }
         else if (n.conversationId) { open(n.conversationId); onClose(); }
     };
     const setPref = async (key, value) => {
         const next = { ...notifPrefs, [key]: value };
         setNotifPrefs(next);
-        try { await api.put('/notifications/preferences', next); } catch (e) { setNotifPrefs(notifPrefs); toast(errMsg(e), 'error'); }
+        try { await api.put('/api/notifications/preferences', next); } catch (e) { setNotifPrefs(notifPrefs); toast(errMsg(e), 'error'); }
     };
 
     return (

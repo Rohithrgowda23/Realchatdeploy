@@ -83,7 +83,7 @@ export function UserPicker({ onPick, selectedIds = [], excludeIds = [] }) {
     if (q.trim().length < 2) { setRes([]); return undefined; }
     setBusy(true);
     const h = setTimeout(async () => {
-      try { const { data } = await api.get('/users/search', { params: { q: q.trim() } }); setRes(data); } catch (e) { toast(errMsg(e), 'error'); }
+      try { const { data } = await api.get('/api/users/search', { params: { q: q.trim() } }); setRes(data); } catch (e) { toast(errMsg(e), 'error'); }
       setBusy(false);
     }, 250);
     return () => clearTimeout(h);

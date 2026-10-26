@@ -13,7 +13,7 @@ export function NewChatDialog({ onClose }) {
   const { open, loadConversations, toast } = useStore();
   const start = async (u) => {
     try {
-      const { data } = await api.post('/conversations/direct', { userId: u.id });
+      const { data } = await api.post('/api/conversations/direct', { userId: u.id });
       await loadConversations();
       await open(data.id);
       onClose();
@@ -36,7 +36,7 @@ export function NewGroupDialog({ onClose }) {
     if (!name.trim()) return setErr({ name: 'Group name is required' });
     setBusy(true); setErr({});
     try {
-      const { data } = await api.post('/conversations/groups', { name, description, avatarUrl, memberIds: picked.map((u) => u.id) });
+      const { data } = await api.post('/api/conversations/groups', { name, description, avatarUrl, memberIds: picked.map((u) => u.id) });
       await loadConversations(); await open(data.id); onClose();
     } catch (er) { setErr(er.response?.data?.fields || { form: errMsg(er) }); toast(errMsg(er), 'error'); }
     setBusy(false);
@@ -99,7 +99,7 @@ export function GroupInfoDialog({ id, onClose }) {
           {canManage && <button className={btnGhost} onClick={() => setEdit({ name: c.title, description: c.description || '', avatarUrl: c.avatarUrl || '' })}>Edit</button>}
         </div>
         {edit && (
-            <form className="mb-4 space-y-2 rounded-2xl border border-line p-3" onSubmit={(e) => { e.preventDefault(); run(() => api.patch(`/conversations/${id}`, edit), 'Group updated').then(() => setEdit(null)); }}>
+            <form className="mb-4 space-y-2 rounded-2xl border border-line p-3" onSubmit={(e) => { e.preventDefault(); run(() => api.patch(`/api/conversations/${id}`, edit), 'Group updated').then(() => setEdit(null)); }}>
               <input aria-label="Group name" className={inputCls} value={edit.name} onChange={(e) => setEdit({ ...edit, name: e.target.value })} />
               <input aria-label="Description" className={inputCls} placeholder="Description" value={edit.description} onChange={(e) => setEdit({ ...edit, description: e.target.value })} />
               <input aria-label="Avatar URL" className={inputCls} placeholder="Avatar URL (https://…)" value={edit.avatarUrl} onChange={(e) => setEdit({ ...edit, avatarUrl: e.target.value })} />
@@ -109,7 +109,7 @@ export function GroupInfoDialog({ id, onClose }) {
         {canManage && (
             <label className="mb-4 flex cursor-pointer items-center justify-between rounded-2xl border border-line p-3 text-sm">
               <span><b>Announcement-only mode</b><span className="block text-xs text-mute">Only owners and admins can send messages.</span></span>
-              <input type="checkbox" className="h-5 w-5 accent-violet-600" checked={!!c.announcementOnly} onChange={() => run(() => api.patch(`/conversations/${id}/announcement`, { enabled: !c.announcementOnly }), c.announcementOnly ? 'Everyone can post' : 'Announcement-only enabled')} />
+              <input type="checkbox" className="h-5 w-5 accent-violet-600" checked={!!c.announcementOnly} onChange={() => run(() => api.patch(`/api/conversations/${id}/announcement`, { enabled: !c.announcementOnly }), c.announcementOnly ? 'Everyone can post' : 'Announcement-only enabled')} />
             </label>
         )}
         <div className="mb-2 flex items-center justify-between">
@@ -118,7 +118,7 @@ export function GroupInfoDialog({ id, onClose }) {
         </div>
         {adding && (
             <div className="mb-3 rounded-2xl border border-line p-3">
-              <UserPicker excludeIds={d.members.map((m) => m.userId)} onPick={(u) => run(() => api.post(`/conversations/${id}/members`, { userIds: [u.id] }), `${u.name} added`)} />
+              <UserPicker excludeIds={d.members.map((m) => m.userId)} onPick={(u) => run(() => api.post(`/api/conversations/${id}/members`, { userIds: [u.id] }), `${u.name} added`)} />
             </div>
         )}
         <ul className="mb-4 divide-y divide-line">
@@ -133,18 +133,18 @@ export function GroupInfoDialog({ id, onClose }) {
                 </div>
                 {myRole === 'OWNER' && m.role !== 'OWNER' && (
                     <>
-                      <button className="text-xs text-violet-400 hover:underline" onClick={() => run(() => api.put(`/conversations/${id}/members/${m.userId}/role`, { role: m.role === 'ADMIN' ? 'MEMBER' : 'ADMIN' }))}>{m.role === 'ADMIN' ? 'Demote' : 'Make admin'}</button>
-                      <button className="text-xs text-amber-400 hover:underline" onClick={() => setConfirm({ title: 'Transfer ownership', text: `Make ${m.name} the owner? You will become an admin.`, label: 'Transfer', fn: () => run(() => api.post(`/conversations/${id}/transfer`, { userId: m.userId }), 'Ownership transferred') })}>Make owner</button>
+                      <button className="text-xs text-violet-400 hover:underline" onClick={() => run(() => api.put(`/api/conversations/${id}/members/${m.userId}/role`, { role: m.role === 'ADMIN' ? 'MEMBER' : 'ADMIN' }))}>{m.role === 'ADMIN' ? 'Demote' : 'Make admin'}</button>
+                      <button className="text-xs text-amber-400 hover:underline" onClick={() => setConfirm({ title: 'Transfer ownership', text: `Make ${m.name} the owner? You will become an admin.`, label: 'Transfer', fn: () => run(() => api.post(`/api/conversations/${id}/transfer`, { userId: m.userId }), 'Ownership transferred') })}>Make owner</button>
                     </>
                 )}
-                {canRemove(m) && <button aria-label={`Remove ${m.name}`} className="rounded-lg p-1.5 text-red-400 hover:bg-red-500/10" onClick={() => setConfirm({ title: 'Remove member', text: `Remove ${m.name} from this group?`, label: 'Remove', danger: true, fn: () => run(() => api.delete(`/conversations/${id}/members/${m.userId}`), 'Member removed') })}><UserMinus size={16} /></button>}
+                {canRemove(m) && <button aria-label={`Remove ${m.name}`} className="rounded-lg p-1.5 text-red-400 hover:bg-red-500/10" onClick={() => setConfirm({ title: 'Remove member', text: `Remove ${m.name} from this group?`, label: 'Remove', danger: true, fn: () => run(() => api.delete(`/api/conversations/${id}/members/${m.userId}`), 'Member removed') })}><UserMinus size={16} /></button>}
               </li>
           ))}
         </ul>
         {canManage && <JoinRequestsSection id={id} />}
         {canManage && <InviteSection id={id} />}
         {canManage && <AuditSection id={id} />}
-        <button className={`${btnDanger} w-full`} onClick={() => setConfirm({ title: 'Leave group', text: myRole === 'OWNER' ? 'You are the owner. Ownership passes to another member when you leave.' : 'You will stop receiving messages from this group.', label: 'Leave', danger: true, fn: async () => { try { await api.post(`/conversations/${id}/leave`); await loadConversations(); onClose(); } catch (e) { toast(errMsg(e), 'error'); } } })}><LogOut size={16} /> Leave group</button>
+        <button className={`${btnDanger} w-full`} onClick={() => setConfirm({ title: 'Leave group', text: myRole === 'OWNER' ? 'You are the owner. Ownership passes to another member when you leave.' : 'You will stop receiving messages from this group.', label: 'Leave', danger: true, fn: async () => { try { await api.post(`/api/conversations/${id}/leave`); await loadConversations(); onClose(); } catch (e) { toast(errMsg(e), 'error'); } } })}><LogOut size={16} /> Leave group</button>
         {confirm && <Confirm title={confirm.title} text={confirm.text} confirmLabel={confirm.label} danger={confirm.danger} onConfirm={confirm.fn} onClose={() => setConfirm(null)} />}
       </Modal>
   );
@@ -155,13 +155,13 @@ export function SettingsDialog({ onClose }) {
   const [f, setF] = useState({ name: user.name, about: user.about || '', avatarUrl: user.avatarUrl || '' });
   const [errs, setErrs] = useState({});
   const [blocked, setBlocked] = useState(null);
-  useEffect(() => { api.get('/users/blocked').then((r) => setBlocked(r.data)).catch((e) => toast(errMsg(e), 'error')); }, [toast]);
+  useEffect(() => { api.get('/api/users/blocked').then((r) => setBlocked(r.data)).catch((e) => toast(errMsg(e), 'error')); }, [toast]);
   const save = async (e) => {
     e.preventDefault(); setErrs({});
-    try { const { data } = await api.put('/users/me', f); setUser(data); toast('Profile saved'); } catch (er) { setErrs(er.response?.data?.fields || {}); toast(errMsg(er), 'error'); }
+    try { const { data } = await api.put('/api/users/me', f); setUser(data); toast('Profile saved'); } catch (er) { setErrs(er.response?.data?.fields || {}); toast(errMsg(er), 'error'); }
   };
   const unblock = async (u) => {
-    try { await api.delete(`/users/${u.id}/block`); setBlocked((b) => b.filter((x) => x.id !== u.id)); toast(`${u.name} unblocked`); } catch (e) { toast(errMsg(e), 'error'); }
+    try { await api.delete(`/api/users/${u.id}/block`); setBlocked((b) => b.filter((x) => x.id !== u.id)); toast(`${u.name} unblocked`); } catch (e) { toast(errMsg(e), 'error'); }
   };
   return (
       <Modal title="Settings" onClose={onClose} wide>

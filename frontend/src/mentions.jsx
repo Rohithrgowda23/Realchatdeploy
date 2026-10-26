@@ -76,7 +76,7 @@ export function MentionsDialog({ convId, onClose }) {
     const load = async (append) => {
         const before = append && items?.length ? items[items.length - 1].id : undefined;
         try {
-            const { data } = await api.get(`/conversations/${convId}/mentions`, { params: { before, size: 20 } });
+            const { data } = await api.get(`/api/conversations/${convId}/mentions`, { params: { before, size: 20 } });
             setItems((c) => (append ? [...(c || []), ...data] : data)); setMore(data.length === 20);
         } catch (e) { toast(errMsg(e), 'error'); setItems((c) => c || []); }
     };

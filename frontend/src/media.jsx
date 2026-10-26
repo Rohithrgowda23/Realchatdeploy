@@ -17,7 +17,7 @@ export function useBlob(id, enabled = true) {
         if (!enabled || !id) return undefined;
         let url; let dead = false;
         setSt({ url: null, error: false, loading: true });
-        api.get(`/attachments/${id}`, { responseType: 'blob' })
+        api.get(`/api/attachments/${id}`, { responseType: 'blob' })
             .then((r) => { if (dead) return; url = URL.createObjectURL(r.data); setSt({ url, error: false, loading: false }); })
             .catch(() => { if (!dead) setSt({ url: null, error: true, loading: false }); });
         return () => { dead = true; if (url) URL.revokeObjectURL(url); };
@@ -27,7 +27,7 @@ export function useBlob(id, enabled = true) {
 
 export async function downloadAttachment(a, toast) {
     try {
-        const r = await api.get(`/attachments/${a.id}`, { params: { download: true }, responseType: 'blob' });
+        const r = await api.get(`/api/attachments/${a.id}`, { params: { download: true }, responseType: 'blob' });
         const url = URL.createObjectURL(r.data);
         const el = document.createElement('a');
         el.href = url; el.download = a.fileName; document.body.appendChild(el); el.click(); el.remove();
@@ -185,7 +185,7 @@ export function ComposerTools({ convId, caption, onSent }) {
         fd.append('file', f);
         if (caption?.trim()) fd.append('caption', caption.trim());
         if (replyTo?.id) fd.append('replyToId', replyTo.id);
-        await post(`/conversations/${convId}/attachments`, fd, f.name);
+        await post(`/api/conversations/${convId}/attachments`, fd, f.name);
     };
 
     const cleanupRec = () => {
@@ -236,7 +236,7 @@ export function ComposerTools({ convId, caption, onSent }) {
         const fd = new FormData();
         fd.append('file', rec.blob, `voice.${ext}`); fd.append('durationMs', rec.ms);
         if (replyTo?.id) fd.append('replyToId', replyTo.id);
-        if (await post(`/conversations/${convId}/voice`, fd, 'Voice message')) discard();
+        if (await post(`/api/conversations/${convId}/voice`, fd, 'Voice message')) discard();
     };
 
     const busy = !!upload || rec.state !== 'idle';
@@ -289,7 +289,7 @@ export function GalleryDialog({ convId, onClose }) {
     const load = async (append) => {
         const before = append && items?.length ? items[items.length - 1].messageId : undefined;
         try {
-            const { data } = await api.get(`/conversations/${convId}/media`, { params: { kind, before, size: 24 } });
+            const { data } = await api.get(`/api/conversations/${convId}/media`, { params: { kind, before, size: 24 } });
             setItems((cur) => (append ? [...(cur || []), ...data] : data)); setMore(data.length === 24);
         } catch (e) { toast(errMsg(e), 'error'); setItems((c) => c || []); }
     };

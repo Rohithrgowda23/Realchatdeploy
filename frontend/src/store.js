@@ -35,7 +35,7 @@ export const useStore = create((set, get) => ({
   setUser: (user) => { sessionStorage.setItem('user', JSON.stringify(user)); set({ user }); },
   logout: () => {
     const t = sessionStorage.getItem('token');
-    if (t) api.delete('/sessions/current', { headers: { Authorization: `Bearer ${t}` } }).catch(() => {}); // revoke server-side
+    if (t) api.delete('/api/sessions/current', { headers: { Authorization: `Bearer ${t}` } }).catch(() => {}); // revoke server-side
     sessionStorage.clear(); set({ token: null, user: null, conversations: [], messages: {}, details: {}, activeId: null, convLoading: true }); },
   setTheme: (theme) => { localStorage.setItem('theme', theme); document.documentElement.dataset.theme = theme; set({ theme }); },
   setReplyTo: (replyTo) => set({ replyTo }),
@@ -44,19 +44,19 @@ export const useStore = create((set, get) => ({
 
   loadConversations: async () => {
     try {
-      const { data } = await api.get('/conversations');
+      const { data } = await api.get('/api/conversations');
       set((s) => ({ conversations: data, convLoading: false, activeId: data.some((c) => c.id === s.activeId) ? s.activeId : null }));
     } catch (e) { set({ convLoading: false }); get().toast(errMsg(e), 'error'); }
   },
   loadDetail: async (id) => {
-    try { const { data } = await api.get(`/conversations/${id}`); set((s) => ({ details: { ...s.details, [id]: data } })); } catch { /* removed from group */ }
+    try { const { data } = await api.get(`/api/conversations/${id}`); set((s) => ({ details: { ...s.details, [id]: data } })); } catch { /* removed from group */ }
   },
   open: async (id) => {
     set({ activeId: id, replyTo: null });
     if (id == null) return;
     set({ msgLoading: true });
     try {
-      const { data } = await api.get(`/conversations/${id}/messages`, { params: { size: 30 } });
+      const { data } = await api.get(`/api/conversations/${id}/messages`, { params: { size: 30 } });
       set((s) => ({ messages: { ...s.messages, [id]: data }, hasMore: { ...s.hasMore, [id]: data.length === 30 } }));
     } catch (e) { get().toast(errMsg(e), 'error'); }
     set({ msgLoading: false });
@@ -67,14 +67,14 @@ export const useStore = create((set, get) => ({
     const cur = get().messages[id] || [];
     if (!cur.length) return;
     try {
-      const { data } = await api.get(`/conversations/${id}/messages`, { params: { before: cur[0].id, size: 30 } });
+      const { data } = await api.get(`/api/conversations/${id}/messages`, { params: { before: cur[0].id, size: 30 } });
       set((s) => ({ messages: { ...s.messages, [id]: [...data, ...(s.messages[id] || [])] }, hasMore: { ...s.hasMore, [id]: data.length === 30 } }));
     } catch (e) { get().toast(errMsg(e), 'error'); }
   },
   markRead: (id) => {
     const last = (get().messages[id] || []).slice(-1)[0];
     set((s) => ({ conversations: s.conversations.map((c) => (c.id === id ? { ...c, unread: 0, unreadMentions: 0 } : c)) }));
-    if (last) api.post(`/conversations/${id}/read`, { messageId: last.id }).catch(() => {});
+    if (last) api.post(`/api/conversations/${id}/read`, { messageId: last.id }).catch(() => {});
   },
   addMessage: (m) => set((s) => {
     const list = s.messages[m.conversationId];
@@ -85,7 +85,7 @@ export const useStore = create((set, get) => ({
     const id = get().activeId;
     if (sendWs('/app/chat.send', { conversationId: id, content, replyToId: replyToId || null, mentions: mentions?.length ? mentions : null })) return true;
     try { // WebSocket is down: persist through REST so the message is not lost
-      const { data } = await api.post(`/conversations/${id}/messages`, { content, replyToId: replyToId || null, mentionIds: mentions?.length ? mentions : null });
+      const { data } = await api.post(`/api/conversations/${id}/messages`, { content, replyToId: replyToId || null, mentionIds: mentions?.length ? mentions : null });
       get().addMessage(data);
       return true;
     } catch (e) { get().toast(errMsg(e), 'error'); return false; }
@@ -96,20 +96,20 @@ export const useStore = create((set, get) => ({
   setForwardMsg: (forwardMsg) => set({ forwardMsg }),
   setNotifPrefs: (notifPrefs) => set({ notifPrefs }),
   setWsOnline: (wsOnline) => set({ wsOnline }),
-  loadMissedCount: async () => { try { const { data } = await api.get('/calls/missed-count'); set({ missedCalls: data.count }); } catch { /* non-fatal */ } },
-  loadStoryCount: async () => { try { const { data } = await api.get('/stories/feed'); set({ storyUnviewed: data.filter((g) => g.hasUnviewed).length }); } catch { /* non-fatal */ } },
-  loadAiStatus: async () => { try { const { data } = await api.get('/ai/status'); set({ ai: data }); } catch { /* AI is optional */ } },
+  loadMissedCount: async () => { try { const { data } = await api.get('/api/calls/missed-count'); set({ missedCalls: data.count }); } catch { /* non-fatal */ } },
+  loadStoryCount: async () => { try { const { data } = await api.get('/api/stories/feed'); set({ storyUnviewed: data.filter((g) => g.hasUnviewed).length }); } catch { /* non-fatal */ } },
+  loadAiStatus: async () => { try { const { data } = await api.get('/api/ai/status'); set({ ai: data }); } catch { /* AI is optional */ } },
   loadNotifMeta: async () => {
     try {
-      const [c, p] = await Promise.all([api.get('/notifications/unread-count'), api.get('/notifications/preferences')]);
+      const [c, p] = await Promise.all([api.get('/api/notifications/unread-count'), api.get('/api/notifications/preferences')]);
       set({ notifUnread: c.data.count, notifPrefs: p.data });
     } catch { /* non-fatal */ }
   },
-  loadSavedIds: async () => { try { const { data } = await api.get('/saved/ids'); set({ saved: data }); } catch { /* non-fatal */ } },
+  loadSavedIds: async () => { try { const { data } = await api.get('/api/saved/ids'); set({ saved: data }); } catch { /* non-fatal */ } },
   toggleSave: async (id) => {
     const isSaved = get().saved.includes(id);
     try {
-      if (isSaved) await api.delete(`/saved/${id}`); else await api.post(`/saved/${id}`);
+      if (isSaved) await api.delete(`/api/saved/${id}`); else await api.post(`/api/saved/${id}`);
       set((s) => ({ saved: isSaved ? s.saved.filter((x) => x !== id) : [...s.saved, id] }));
       get().toast(isSaved ? 'Removed from saved' : 'Saved');
     } catch (e) { get().toast(errMsg(e), 'error'); }

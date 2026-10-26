@@ -56,7 +56,7 @@ export default function Chat() {
         st().loadStoryCount();
         st().loadMissedCount();
         st().setWsOnline(true);
-        api.get('/presence').then((r) => st().setOnlineList(r.data)).catch(() => {});
+        api.get('/api/presence').then((r) => st().setOnlineList(r.data)).catch(() => {});
         if (st().activeId) st().open(st().activeId);
       },
     });
@@ -201,7 +201,7 @@ function ChatPane({ className, onDialog }) {
   }
 
   const setting = async (patch, msg) => {
-    try { const { data } = await api.patch(`/conversations/${conv.id}/settings`, patch); patchConversation(data); toast(msg); } catch (e) { toast(errMsg(e), 'error'); }
+    try { const { data } = await api.patch(`/api/conversations/${conv.id}/settings`, patch); patchConversation(data); toast(msg); } catch (e) { toast(errMsg(e), 'error'); }
   };
   const submit = async (e) => {
     e?.preventDefault();
@@ -284,7 +284,7 @@ function ChatPane({ className, onDialog }) {
         {mentionsOpen && <MentionsDialog convId={conv.id} onClose={() => setMentionsOpen(false)} />}
         {gallery && <GalleryDialog convId={conv.id} onClose={() => setGallery(false)} />}
         {confirmBlock && <Confirm danger title="Block user" confirmLabel="Block" text={`${conv.title} will no longer be able to message you, and you cannot message them. You can unblock in Settings.`}
-                                  onClose={() => setConfirmBlock(false)} onConfirm={async () => { try { await api.post(`/users/${conv.otherUserId}/block`); toast(`${conv.title} blocked`); loadConversations(); } catch (e) { toast(errMsg(e), 'error'); } }} />}
+                                  onClose={() => setConfirmBlock(false)} onConfirm={async () => { try { await api.post(`/api/users/${conv.otherUserId}/block`); toast(`${conv.title} blocked`); loadConversations(); } catch (e) { toast(errMsg(e), 'error'); } }} />}
       </section>
   );
 }
@@ -323,13 +323,13 @@ function Bubble({ m, mine, group, read, canModerate }) {
           {reactions.length > 0 && (
               <div className="-mt-1 flex flex-wrap gap-1">
                 {reactions.map(([emoji, ids]) => (
-                    <button key={emoji} onClick={() => call(() => api.post(`/messages/${m.id}/reactions`, { emoji }))} className={`rounded-full border px-1.5 text-xs ${ids.includes(me) ? 'border-violet-400 bg-violet-500/20' : 'border-line bg-panel'}`}>{emoji} {ids.length}</button>
+                    <button key={emoji} onClick={() => call(() => api.post(`/api/messages/${m.id}/reactions`, { emoji }))} className={`rounded-full border px-1.5 text-xs ${ids.includes(me) ? 'border-violet-400 bg-violet-500/20' : 'border-line bg-panel'}`}>{emoji} {ids.length}</button>
                 ))}
               </div>
           )}
           {!m.deleted && !editing && (
               <div className={`mt-0.5 flex items-center gap-0.5 rounded-xl border border-line bg-panel p-0.5 shadow ${sel ? 'flex' : 'hidden group-hover:flex group-focus-within:flex'}`}>
-                {EMOJIS.map((e) => <button key={e} aria-label={`React ${e}`} className="rounded-lg px-1 text-sm hover:bg-panel2" onClick={() => { call(() => api.post(`/messages/${m.id}/reactions`, { emoji: e })); setSel(false); }}>{e}</button>)}
+                {EMOJIS.map((e) => <button key={e} aria-label={`React ${e}`} className="rounded-lg px-1 text-sm hover:bg-panel2" onClick={() => { call(() => api.post(`/api/messages/${m.id}/reactions`, { emoji: e })); setSel(false); }}>{e}</button>)}
                 <button aria-label="Reply" className={iconBtn} onClick={() => { setReplyTo({ id: m.id, senderName: m.senderName, content: (m.content || '').slice(0, 80) }); setSel(false); }}><Reply size={14} /></button>
                 <button aria-label={isSaved ? 'Remove from saved' : 'Save message'} className={iconBtn} onClick={() => { toggleSave(m.id); setSel(false); }}>{isSaved ? <BookmarkCheck size={14} className="text-violet-400" /> : <Bookmark size={14} />}</button>
                 <button aria-label="Forward" className={iconBtn} onClick={() => { setForwardMsg(m); setSel(false); }}><Forward size={14} /></button>
@@ -353,7 +353,7 @@ function MessageSearch({ convId, onClose }) {
   useEffect(() => {
     if (q.trim().length < 2) { setRes(null); return undefined; }
     const h = setTimeout(async () => {
-      try { const { data } = await api.get(`/conversations/${convId}/messages/search`, { params: { q: q.trim() } }); setRes(data); } catch (e) { toast(errMsg(e), 'error'); }
+      try { const { data } = await api.get(`/api/conversations/${convId}/messages/search`, { params: { q: q.trim() } }); setRes(data); } catch (e) { toast(errMsg(e), 'error'); }
     }, 300);
     return () => clearTimeout(h);
   }, [q, convId, toast]);

@@ -16,7 +16,7 @@ export default function JoinPage() {
 
     useEffect(() => {
         if (!token) { setState('invalid'); return; }
-        api.post('/invites/preview', { token })
+        api.post('/api/invites/preview', { token })
             .then((r) => { setInfo(r.data); setState(r.data.requestPending ? 'pending' : 'ready'); })
             .catch(() => setState('invalid'));
     }, [token]);
@@ -24,7 +24,7 @@ export default function JoinPage() {
     const join = async () => {
         setState('busy'); setError('');
         try {
-            const { data } = await api.post('/invites/join', { token });
+            const { data } = await api.post('api/invites/join', { token });
             if (data.status === 'PENDING') { setState('pending'); return; }
             await loadConversations(); await open(data.conversationId);
             window.history.replaceState({}, '', '/');

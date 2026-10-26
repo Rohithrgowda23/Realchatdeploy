@@ -25,7 +25,7 @@ export function ScheduleDialog({ convId, content, onClose, onDone }) {
         if (Number.isNaN(d.getTime()) || d.getTime() < Date.now() + 55e3) return toast('Choose a time at least a minute from now', 'error');
         setBusy(true);
         try {
-            await api.post(`/conversations/${convId}/scheduled`, { content: text, replyToId: replyTo?.id || null, scheduledAt: d.toISOString() });
+            await api.post(`/api/api/conversations/${convId}/scheduled`, { content: text, replyToId: replyTo?.id || null, scheduledAt: d.toISOString() });
             toast(`Scheduled for ${fmt(d)}`); setReplyTo(null); onDone?.(); onClose();
         } catch (x) { toast(errMsg(x), 'error'); }
         setBusy(false);
@@ -53,7 +53,7 @@ export function ScheduledDialog({ onClose }) {
     const [tab, setTab] = useState('pending');
     const [edit, setEdit] = useState(null); // {id, content, when}
     const [confirm, setConfirm] = useState(null);
-    const load = () => api.get('/scheduled').then((r) => setList(r.data)).catch((e) => { toast(errMsg(e), 'error'); setList([]); });
+    const load = () => api.get('/api/scheduled').then((r) => setList(r.data)).catch((e) => { toast(errMsg(e), 'error'); setList([]); });
     useEffect(() => { load(); }, []); // eslint-disable-line
     const shown = (list || []).filter((s) => (tab === 'pending' ? ['PENDING', 'SENDING'].includes(s.status) : !['PENDING', 'SENDING'].includes(s.status)))
         .sort((a, b) => (tab === 'pending' ? new Date(a.scheduledAt) - new Date(b.scheduledAt) : new Date(b.scheduledAt) - new Date(a.scheduledAt)));
@@ -61,7 +61,7 @@ export function ScheduledDialog({ onClose }) {
         e.preventDefault();
         const d = new Date(edit.when);
         if (Number.isNaN(d.getTime())) return toast('Choose a valid time', 'error');
-        try { await api.put(`/scheduled/${edit.id}`, { content: edit.content, scheduledAt: d.toISOString() }); toast('Updated'); setEdit(null); load(); }
+        try { await api.put(`/api/scheduled/${edit.id}`, { content: edit.content, scheduledAt: d.toISOString() }); toast('Updated'); setEdit(null); load(); }
         catch (x) { toast(errMsg(x), 'error'); load(); }
     };
     return (
@@ -97,7 +97,7 @@ export function ScheduledDialog({ onClose }) {
                 ))}
             </ul>
             {confirm && <Confirm danger title="Cancel scheduled message" confirmLabel="Cancel message" text="It will not be sent." onClose={() => setConfirm(null)}
-                                 onConfirm={async () => { try { await api.delete(`/scheduled/${confirm.id}`); toast('Cancelled'); load(); } catch (e) { toast(errMsg(e), 'error'); load(); } }} />}
+                                 onConfirm={async () => { try { await api.delete(`/api/scheduled/${confirm.id}`); toast('Cancelled'); load(); } catch (e) { toast(errMsg(e), 'error'); load(); } }} />}
         </Modal>
     );
 }

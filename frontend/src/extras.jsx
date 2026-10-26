@@ -31,7 +31,7 @@ export function SavedDialog({ onClose }) {
   const title = (id) => conversations.find((c) => c.id === id)?.title || 'chat';
   const load = async (p, term, append) => {
     try {
-      const { data } = await api.get('/saved', { params: { q: term, page: p, size: 20 } });
+      const { data } = await api.get('/api/saved', { params: { q: term, page: p, size: 20 } });
       setItems((cur) => (append ? [...(cur || []), ...data] : data)); setPage(p); setMore(data.length === 20);
     } catch (e) { toast(errMsg(e), 'error'); setItems((c) => c || []); }
   };
@@ -63,7 +63,7 @@ export function SearchDialog({ onClose }) {
     if (f.to) { const d = new Date(`${f.to}T00:00:00`); d.setDate(d.getDate() + 1); params.to = d.toISOString(); }
     setBusy(true);
     try {
-      const { data } = await api.get('/search/messages', { params });
+      const { data } = await api.get('/api/search/messages', { params });
       setItems((cur) => (append ? [...(cur || []), ...data] : data)); setPage(p); setMore(data.length === 20);
     } catch (e) { toast(errMsg(e), 'error'); }
     setBusy(false);
@@ -96,7 +96,7 @@ export function ForwardDialog({ message, onClose }) {
   const list = conversations.filter((c) => c.title.toLowerCase().includes(q.toLowerCase()) && !(c.announcementOnly && c.myRole === 'MEMBER'));
   const go = async () => {
     setBusy(true);
-    try { await api.post(`/messages/${message.id}/forward`, { conversationId: dest, caption }); toast('Message forwarded'); onClose(); } catch (e) { toast(errMsg(e), 'error'); }
+    try { await api.post(`/api/messages/${message.id}/forward`, { conversationId: dest, caption }); toast('Message forwarded'); onClose(); } catch (e) { toast(errMsg(e), 'error'); }
     setBusy(false);
   };
   return (
@@ -125,9 +125,9 @@ export function SessionsSection() {
   const { toast } = useStore();
   const [list, setList] = useState(null);
   const [confirm, setConfirm] = useState(false);
-  const load = () => api.get('/sessions').then((r) => setList(r.data)).catch((e) => toast(errMsg(e), 'error'));
+  const load = () => api.get('api/sessions').then((r) => setList(r.data)).catch((e) => toast(errMsg(e), 'error'));
   useEffect(() => { load(); }, []); // eslint-disable-line
-  const revoke = async (s) => { try { await api.delete(`/sessions/${s.id}`); toast('Session signed out'); load(); } catch (e) { toast(errMsg(e), 'error'); } };
+  const revoke = async (s) => { try { await api.delete(`/api/sessions/${s.id}`); toast('Session signed out'); load(); } catch (e) { toast(errMsg(e), 'error'); } };
   return (
       <section className="mb-6">
         <h3 className="mb-2 text-sm font-medium text-mute">Active sessions</h3>
@@ -143,7 +143,7 @@ export function SessionsSection() {
         )}
         {list && list.length > 1 && <button className={`${btnDanger} mt-2`} onClick={() => setConfirm(true)}>Sign out all other sessions</button>}
         {confirm && <Confirm danger title="Sign out other sessions" confirmLabel="Sign out all" text="Every other device will be signed out immediately." onClose={() => setConfirm(false)}
-                             onConfirm={async () => { try { await api.post('/sessions/revoke-others'); toast('Other sessions signed out'); load(); } catch (e) { toast(errMsg(e), 'error'); } }} />}
+                             onConfirm={async () => { try { await api.post('/api/sessions/revoke-others'); toast('Other sessions signed out'); load(); } catch (e) { toast(errMsg(e), 'error'); } }} />}
       </section>
   );
 }
@@ -159,7 +159,7 @@ export function AuditSection({ id }) {
   const [more, setMore] = useState(false);
   const load = async (p, append) => {
     try {
-      const { data } = await api.get(`/conversations/${id}/audit`, { params: { action, page: p, size: 15 } });
+      const { data } = await api.get(`/api/conversations/${id}/audit`, { params: { action, page: p, size: 15 } });
       setItems((c) => (append ? [...(c || []), ...data] : data)); setPage(p); setMore(data.length === 15);
     } catch (e) { toast(errMsg(e), 'error'); }
   };

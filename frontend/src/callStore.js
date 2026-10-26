@@ -105,7 +105,7 @@ async function getMedia(type) {
 
 async function createPc(callId) {
     let iceServers = [{ urls: ['stun:stun.l.google.com:19302'] }];
-    try { const { data } = await api.get('/calls/ice-config'); if (data.iceServers?.length) iceServers = data.iceServers; } catch { /* fall back to public STUN */ }
+    try { const { data } = await api.get('/api/calls/ice-config'); if (data.iceServers?.length) iceServers = data.iceServers; } catch { /* fall back to public STUN */ }
     pc = new RTCPeerConnection({ iceServers });
     pendingIce = [];
     localStream.getTracks().forEach((t) => pc.addTrack(t, localStream));

@@ -16,13 +16,13 @@ export function InviteSection({ id }) {
     const [copied, setCopied] = useState(false);
     const [confirm, setConfirm] = useState(null);
     const [busy, setBusy] = useState(false);
-    const load = () => api.get(`/conversations/${id}/invites`).then((r) => setList(r.data)).catch((e) => toast(errMsg(e), 'error'));
+    const load = () => api.get(`/api/conversations/${id}/invites`).then((r) => setList(r.data)).catch((e) => toast(errMsg(e), 'error'));
     useEffect(() => { if (open) load(); }, [open, id]); // eslint-disable-line
 
     const create = async (e) => {
         e.preventDefault(); setBusy(true);
         try {
-            const { data } = await api.post(`/conversations/${id}/invites`, { expiresInHours: f.expires ? Number(f.expires) : null, maxUses: f.maxUses ? Number(f.maxUses) : null, requiresApproval: f.approval });
+            const { data } = await api.post(`/api/conversations/${id}/invites`, { expiresInHours: f.expires ? Number(f.expires) : null, maxUses: f.maxUses ? Number(f.maxUses) : null, requiresApproval: f.approval });
             // the token goes in the URL fragment: browsers never send it to servers, so it stays out of access logs
             setLink(`${window.location.origin}/join#${data.token}`); setCopied(false); load();
         } catch (x) { toast(errMsg(x), 'error'); }
@@ -65,7 +65,7 @@ export function InviteSection({ id }) {
                 </div>
             )}
             {confirm && <Confirm danger title="Revoke invite link" confirmLabel="Revoke" text="The link stops working immediately and its pending join requests are declined."
-                                 onClose={() => setConfirm(null)} onConfirm={async () => { try { await api.delete(`/conversations/${id}/invites/${confirm.id}`); toast('Invite revoked'); load(); } catch (e) { toast(errMsg(e), 'error'); } }} />}
+                                 onClose={() => setConfirm(null)} onConfirm={async () => { try { await api.delete(`api/conversations/${id}/invites/${confirm.id}`); toast('Invite revoked'); load(); } catch (e) { toast(errMsg(e), 'error'); } }} />}
         </div>
     );
 }
@@ -73,10 +73,10 @@ export function InviteSection({ id }) {
 export function JoinRequestsSection({ id }) {
     const { toast, joinTick, loadDetail } = useStore();
     const [list, setList] = useState(null);
-    const load = () => api.get(`/conversations/${id}/join-requests`).then((r) => setList(r.data)).catch((e) => toast(errMsg(e), 'error'));
+    const load = () => api.get(`/api/conversations/${id}/join-requests`).then((r) => setList(r.data)).catch((e) => toast(errMsg(e), 'error'));
     useEffect(() => { load(); }, [id, joinTick]); // eslint-disable-line
     const decide = async (r, approve) => {
-        try { await api.post(`/conversations/${id}/join-requests/${r.id}/${approve ? 'approve' : 'reject'}`); toast(approve ? `${r.userName} added` : 'Request declined'); load(); if (approve) loadDetail(id); }
+        try { await api.post(`/api/conversations/${id}/join-requests/${r.id}/${approve ? 'approve' : 'reject'}`); toast(approve ? `${r.userName} added` : 'Request declined'); load(); if (approve) loadDetail(id); }
         catch (e) { toast(errMsg(e), 'error'); load(); }
     };
     if (!list || list.length === 0) return null;

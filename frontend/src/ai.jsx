@@ -14,7 +14,7 @@ export function TranslateDialog({ m, onClose }) {
     const [error, setError] = useState('');
     const run = async () => {
         setBusy(true); setError('');
-        try { const { data } = await api.post(`/messages/${m.id}/translate`, { targetLang: lang }); localStorage.setItem('aiLang', lang); setRes(data); }
+        try { const { data } = await api.post(`/api/messages/${m.id}/translate`, { targetLang: lang }); localStorage.setItem('aiLang', lang); setRes(data); }
         catch (e) { setRes(null); setError(errMsg(e)); }
         setBusy(false);
     };
@@ -51,7 +51,7 @@ export function SummaryDialog({ convId, onClose }) {
     const run = async () => {
         setBusy(true); setError('');
         const body = range.startsWith('m') ? { lastMessages: Number(range.slice(1)) } : { sinceHours: Number(range.slice(1)) };
-        try { const { data } = await api.post(`/conversations/${convId}/summary`, body); setRes(data); }
+        try { const { data } = await api.post(`/api/conversations/${convId}/summary`, body); setRes(data); }
         catch (e) { setError(errMsg(e)); }
         setBusy(false);
     };

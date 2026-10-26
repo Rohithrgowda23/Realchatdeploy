@@ -61,10 +61,10 @@ export function CallsDialog({ onClose }) {
     const [more, setMore] = useState(false);
     const load = async (append) => {
         const before = append && items?.length ? items[items.length - 1].id : undefined;
-        try { const { data } = await api.get('/calls', { params: { before, size: 20 } }); setItems((c) => (append ? [...(c || []), ...data] : data)); setMore(data.length === 20); }
+        try { const { data } = await api.get('/api/calls', { params: { before, size: 20 } }); setItems((c) => (append ? [...(c || []), ...data] : data)); setMore(data.length === 20); }
         catch (e) { toast(errMsg(e), 'error'); setItems((c) => c || []); }
     };
-    useEffect(() => { load(false); api.post('/calls/seen').then(loadMissedCount).catch(() => {}); }, []); // eslint-disable-line
+    useEffect(() => { load(false); api.post('/api/calls/seen').then(loadMissedCount).catch(() => {}); }, []); // eslint-disable-line
     const callBack = (c, type) => { onClose(); startCall(c.conversationId, { id: c.peerId, name: c.peerName, avatarUrl: c.peerAvatar }, type); };
     const icon = (c) => (c.missed ? <PhoneMissed size={18} className="text-red-400" /> : c.direction === 'INCOMING' ? <PhoneIncoming size={18} className="text-emerald-400" /> : <PhoneOutgoing size={18} className="text-violet-300" />);
     const outcome = (c) => (c.missed ? 'Missed' : c.status === 'REJECTED' ? 'Declined' : c.status === 'FAILED' ? 'Failed' : c.status === 'MISSED' ? 'No answer' : c.durationSeconds != null ? mmss(c.durationSeconds) : c.status.toLowerCase());

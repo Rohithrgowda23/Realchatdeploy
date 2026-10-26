@@ -15,7 +15,7 @@ function useStoryBlob(id, enabled) {
         if (!enabled) return undefined;
         let url; let dead = false;
         setSt({ url: null, error: false });
-        api.get(`/stories/${id}/media`, { responseType: 'blob' })
+        api.get(`/api/stories/${id}/media`, { responseType: 'blob' })
             .then((r) => { if (!dead) { url = URL.createObjectURL(r.data); setSt({ url, error: false }); } })
             .catch(() => { if (!dead) setSt({ url: null, error: true }); });
         return () => { dead = true; if (url) URL.revokeObjectURL(url); };
@@ -41,7 +41,7 @@ function Viewer({ groups, start, onClose, onViewed, onDeleted }) {
 
     useEffect(() => { // record the view (the server ignores your own stories)
         setPanel(null); setViewers(null);
-        if (!group.own && !story.viewed) api.post(`/stories/${story.id}/view`).then(() => onViewed(story.id)).catch(() => {});
+        if (!group.own && !story.viewed) api.post(`/api/stories/${story.id}/view`).then(() => onViewed(story.id)).catch(() => {});
     }, [story.id]); // eslint-disable-line
 
     useEffect(() => { // images and text advance after 6 s; video follows its own length
@@ -58,9 +58,9 @@ function Viewer({ groups, start, onClose, onViewed, onDeleted }) {
 
     const openViewers = async () => {
         setPanel('viewers');
-        try { const { data } = await api.get(`/stories/${story.id}/viewers`); setViewers(data); } catch (e) { toast(errMsg(e), 'error'); setViewers([]); }
+        try { const { data } = await api.get(`/api/stories/${story.id}/viewers`); setViewers(data); } catch (e) { toast(errMsg(e), 'error'); setViewers([]); }
     };
-    const remove = async () => { try { await api.delete(`/stories/${story.id}`); toast('Story deleted'); onDeleted(); } catch (e) { toast(errMsg(e), 'error'); } };
+    const remove = async () => { try { await api.delete(`/api/stories/${story.id}`); toast('Story deleted'); onDeleted(); } catch (e) { toast(errMsg(e), 'error'); } };
 
     return (
         <div role="dialog" aria-modal="true" aria-label={`${group.name}'s story`} className="fixed inset-0 z-50 flex flex-col bg-black text-white">
@@ -116,7 +116,7 @@ function Composer({ onDone, onCancel }) {
         if (text.trim()) fd.append('text', text.trim());
         if (type === 'TEXT') fd.append('bgColor', color); else if (file) fd.append('file', file);
         setPct(0);
-        try { await api.post('/stories', fd, { onUploadProgress: (p) => p.total && setPct(Math.round((p.loaded / p.total) * 100)) }); toast('Story posted'); onDone(); }
+        try { await api.post('/api/stories', fd, { onUploadProgress: (p) => p.total && setPct(Math.round((p.loaded / p.total) * 100)) }); toast('Story posted'); onDone(); }
         catch (x) { toast(errMsg(x), 'error'); }
         setPct(null);
     };
@@ -150,9 +150,9 @@ function PrivacySettings({ onBack }) {
     const toast = useStore((s) => s.toast);
     const [s, setS] = useState(null);
     const [adding, setAdding] = useState(false);
-    useEffect(() => { api.get('/stories/settings').then((r) => setS(r.data)).catch((e) => toast(errMsg(e), 'error')); }, []); // eslint-disable-line
+    useEffect(() => { api.get('/api/stories/settings').then((r) => setS(r.data)).catch((e) => toast(errMsg(e), 'error')); }, []); // eslint-disable-line
     const save = async () => {
-        try { await api.put('/stories/settings', { audience: s.audience, hiddenFrom: s.hiddenFrom.map((u) => u.id) }); toast('Story privacy saved'); onBack(); } catch (e) { toast(errMsg(e), 'error'); }
+        try { await api.put('/api/stories/settings', { audience: s.audience, hiddenFrom: s.hiddenFrom.map((u) => u.id) }); toast('Story privacy saved'); onBack(); } catch (e) { toast(errMsg(e), 'error'); }
     };
     if (!s) return <Skeleton className="h-24 w-full" />;
     return (
@@ -174,7 +174,7 @@ export function StoriesDialog({ onClose }) {
     const [groups, setGroups] = useState(null);
     const [view, setView] = useState('list'); // list | compose | settings
     const [playing, setPlaying] = useState(null);
-    const load = () => api.get('/stories/feed').then((r) => setGroups(r.data)).catch((e) => { toast(errMsg(e), 'error'); setGroups([]); });
+    const load = () => api.get('/api/stories/feed').then((r) => setGroups(r.data)).catch((e) => { toast(errMsg(e), 'error'); setGroups([]); });
     useEffect(() => { load(); }, []); // eslint-disable-line
     const close = () => { loadStoryCount(); onClose(); };
     const own = groups?.find((g) => g.own);

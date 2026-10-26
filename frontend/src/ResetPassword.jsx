@@ -15,7 +15,7 @@ export default function ResetPassword() {
     useEffect(() => {
         window.history.replaceState({}, '', '/reset-password'); // keep the token out of the address bar and history
         if (!token) { setState('invalid'); return; }
-        api.post('/auth/reset-password/validate', { token }).then((r) => setState(r.data.valid ? 'valid' : 'invalid')).catch(() => setState('invalid'));
+        api.post('/api/auth/reset-password/validate', { token }).then((r) => setState(r.data.valid ? 'valid' : 'invalid')).catch(() => setState('invalid'));
     }, [token]);
 
     const submit = async (e) => {
@@ -25,7 +25,7 @@ export default function ResetPassword() {
         if (confirm !== pw) er.confirm = 'Passwords do not match';
         if (Object.keys(er).length) return setErrors(er);
         setBusy(true); setErrors({});
-        try { await api.post('/auth/reset-password', { token, newPassword: pw }); setState('done'); }
+        try { await api.post('/api/auth/reset-password', { token, newPassword: pw }); setState('done'); }
         catch (x) { setErrors({ form: errMsg(x), ...(x.response?.data?.fields?.newPassword ? { password: x.response.data.fields.newPassword } : {}) }); }
         setBusy(false);
     };

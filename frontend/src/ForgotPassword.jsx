@@ -13,7 +13,7 @@ export default function ForgotPassword() {
         e.preventDefault();
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return setError('Enter a valid email');
         setBusy(true); setError('');
-        try { await api.post('/auth/forgot-password', { email }); setDone(true); } catch (er) { setError(errMsg(er)); }
+        try { await api.post('/api/auth/forgot-password', { email }); setDone(true); } catch (er) { setError(errMsg(er)); }
         setBusy(false);
     };
     return (

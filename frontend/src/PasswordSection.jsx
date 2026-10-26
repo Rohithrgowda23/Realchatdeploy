@@ -17,7 +17,7 @@ export default function PasswordSection() {
         if (f.next !== f.confirm) return setErr('Passwords do not match');
         setBusy(true);
         try {
-            await api.put('/users/me/password', { currentPassword: hasPassword ? f.current : null, newPassword: f.next });
+            await api.put('/api/users/me/password', { currentPassword: hasPassword ? f.current : null, newPassword: f.next });
             toast('Password updated. Other devices were signed out.'); setHasPassword(true); setF({ current: '', next: '', confirm: '' });
         } catch (x) { setErr(errMsg(x)); }
         setBusy(false);
