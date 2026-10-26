@@ -336,7 +336,16 @@ function Bubble({ m, mine, group, read, canModerate }) {
                 <button aria-label="Delete for me" title="Delete for me" className={iconBtn} onClick={() => hideMessage(m.id, m.conversationId)}><EyeOff size={14} /></button>
                 {mine && !(m.attachment && !m.content) && <button aria-label="Edit" className={iconBtn} onClick={() => { setDraft(m.content); setEditing(true); setSel(false); }}><Pencil size={14} /></button>}
                 {ai.enabled && m.content && <button aria-label="Translate message" title="Translate with AI" className={iconBtn} onClick={() => { setTranslating(true); setSel(false); }}><Languages size={14} /></button>}
-                {(mine || canModerate) && <button aria-label="Delete for everyone" title="Delete for everyone" className={`${iconBtn} hover:text-red-400`} onClick={() => setConfirmDel(true)}><Trash2 size={14} /></button>}
+                {(mine || !group || canModerate) && (
+                    <button
+                        aria-label="Delete for everyone"
+                        title="Delete for everyone"
+                        className={`${iconBtn} hover:text-red-400`}
+                        onClick={() => setConfirmDel(true)}
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                )}
               </div>
           )}
         </div>

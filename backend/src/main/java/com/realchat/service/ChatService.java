@@ -305,9 +305,17 @@ public class ChatService {
         ChatMessage m = messages.findById(msgId).orElseThrow(() -> ApiException.notFound("Message not found"));
         requireMember(m.getConversationId(), me);
         if (!m.getSenderId().equals(me)) {
-            Conversation c = convs.findById(m.getConversationId()).orElseThrow(() -> ApiException.notFound("Conversation not found"));
+            Conversation c = convs.findById(m.getConversationId())
+                    .orElseThrow(() -> ApiException.notFound("Conversation not found"));
+
             ConversationMember cm = requireMember(m.getConversationId(), me);
-            if (!GROUP.equals(c.getType()) || !canManage(cm)) throw ApiException.forbidden("Only the author or a group admin can delete a message");
+
+            // In group chats, only the author or an authorized moderator can delete for everyone.
+            // In direct chats, either participant can delete for everyone.
+            if (GROUP.equals(c.getType()) && !canManage(cm)) {
+                throw ApiException.forbidden(
+                        "Only the author or a group admin can delete a message");
+            }
         }
         m.setDeleted(true);
         m.setContent("");
