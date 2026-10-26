@@ -9,7 +9,8 @@ public class JoinRequest {
     private Long userId;
     private Long inviteId;
     private String status;
-    @Column(columnDefinition = "tinyint") private Integer pendingKey;
+    @Column(name = "pending_key")
+    private Integer pendingKey;
     private Instant createdAt;
     private Long decidedBy;
     private Instant decidedAt;
