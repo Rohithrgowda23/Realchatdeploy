@@ -25,7 +25,7 @@ export function ScheduleDialog({ convId, content, onClose, onDone }) {
         if (Number.isNaN(d.getTime()) || d.getTime() < Date.now() + 55e3) return toast('Choose a time at least a minute from now', 'error');
         setBusy(true);
         try {
-            await api.post(`/api/api/conversations/${convId}/scheduled`, { content: text, replyToId: replyTo?.id || null, scheduledAt: d.toISOString() });
+            await api.post(`/api/conversations/${convId}/scheduled`, { content: text, replyToId: replyTo?.id || null, scheduledAt: d.toISOString() });
             toast(`Scheduled for ${fmt(d)}`); setReplyTo(null); onDone?.(); onClose();
         } catch (x) { toast(errMsg(x), 'error'); }
         setBusy(false);
