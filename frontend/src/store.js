@@ -116,7 +116,7 @@ export const useStore = create((set, get) => ({
   },
   hideMessage: async (id, convId) => {
     try {
-      await api.post(`/messages/${id}/hide`);
+      await api.post(`/api/messages/${id}/hide`);
       set((s) => ({ messages: { ...s.messages, [convId]: (s.messages[convId] || []).filter((x) => x.id !== id) } }));
       get().toast('Deleted for you');
     } catch (e) { get().toast(errMsg(e), 'error'); }

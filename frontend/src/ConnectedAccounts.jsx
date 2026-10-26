@@ -10,10 +10,10 @@ export default function ConnectedAccounts() {
     const [confirm, setConfirm] = useState(false);
     const [busy, setBusy] = useState(false);
 
-    const load = () => api.get('/oauth/accounts').then((r) => setData(r.data)).catch((e) => toast(errMsg(e), 'error'));
+    const load = () => api.get('/api/oauth/accounts').then((r) => setData(r.data)).catch((e) => toast(errMsg(e), 'error'));
     useEffect(() => {
         load();
-        api.get('/auth/oauth/providers').then((r) => setEnabled(!!r.data.google)).catch(() => {});
+        api.get('/api/auth/oauth/providers').then((r) => setEnabled(!!r.data.google)).catch(() => {});
     }, []); // eslint-disable-line
 
     const google = data?.providers.find((p) => p.provider === 'google');

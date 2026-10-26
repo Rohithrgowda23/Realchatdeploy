@@ -298,7 +298,7 @@ function Bubble({ m, mine, group, read, canModerate }) {
   const [confirmDel, setConfirmDel] = useState(false);
   const [translating, setTranslating] = useState(false);
   const call = async (fn) => { try { await fn(); } catch (e) { toast(errMsg(e), 'error'); } };
-  const saveEdit = () => call(async () => { await api.put(`/messages/${m.id}`, { content: draft }); setEditing(false); });
+  const saveEdit = () => call(async () => { await api.put(`/api/messages/${m.id}`, { content: draft }); setEditing(false); });
   const reactions = Object.entries(m.reactions || {});
   const me = useStore.getState().user.id;
 
@@ -341,7 +341,7 @@ function Bubble({ m, mine, group, read, canModerate }) {
           )}
         </div>
         {translating && <TranslateDialog m={m} onClose={() => setTranslating(false)} />}
-        {confirmDel && <Confirm danger title="Delete message" confirmLabel="Delete" text="This message will be deleted for everyone in the conversation." onClose={() => setConfirmDel(false)} onConfirm={() => call(() => api.delete(`/messages/${m.id}`))} />}
+        {confirmDel && <Confirm danger title="Delete message" confirmLabel="Delete" text="This message will be deleted for everyone in the conversation." onClose={() => setConfirmDel(false)} onConfirm={() => call(() => api.delete(`/api/messages/${m.id}`))} />}
       </div>
   );
 }

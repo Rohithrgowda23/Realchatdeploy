@@ -56,7 +56,7 @@ describe('Login', () => {
 
     it('shows the Google button only when the server has Google configured', async () => {
         renderLogin();
-        await waitFor(() => expect(api.get).toHaveBeenCalledWith('/auth/oauth/providers'));
+        await waitFor(() => expect(api.get).toHaveBeenCalledWith('/api/auth/oauth/providers'));
         expect(screen.queryByRole('button', { name: /Continue with Google/ })).not.toBeInTheDocument();
     });
 

@@ -10,7 +10,7 @@ export default function PasswordSection() {
     const [f, setF] = useState({ current: '', next: '', confirm: '' });
     const [err, setErr] = useState('');
     const [busy, setBusy] = useState(false);
-    useEffect(() => { api.get('/oauth/accounts').then((r) => setHasPassword(r.data.hasPassword)).catch(() => setHasPassword(true)); }, []);
+    useEffect(() => { api.get('/api/oauth/accounts').then((r) => setHasPassword(r.data.hasPassword)).catch(() => setHasPassword(true)); }, []);
     const submit = async (e) => {
         e.preventDefault(); setErr('');
         if (f.next.length < 8) return setErr('New password must be at least 8 characters');
