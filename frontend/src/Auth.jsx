@@ -36,7 +36,7 @@ export function Field({ label, error, id, ...rest }) {
     );
 }
 
-const BACKEND = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8080';
+const BACKEND = import.meta.env.VITE_BACKEND_URL || 'https://realchatdeploy.onrender.com';
 
 function GoogleButton({ label }) {
     const [enabled, setEnabled] = useState(false);
@@ -54,7 +54,7 @@ function GoogleButton({ label }) {
                     <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
                     <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
                 </svg>
-                {busy ? 'Redirecting to Google…' : label}
+                {busy ? 'Redirecting to Googleâ€¦' : label}
             </button>
         </>
     );
@@ -101,7 +101,7 @@ export function Login() {
                 <Field id="password" label="Password" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} error={errors.password} />
                 <div className="-mt-1 mb-3 text-right text-sm"><Link className="text-violet-400 hover:underline" to="/forgot-password">Forgot password?</Link></div>
                 {errors.form && !errors.email && !errors.password && <p role="alert" className="mb-3 text-sm text-red-400">{errors.form}</p>}
-                <button className={`${btnPrimary} w-full`} disabled={busy}>{busy ? 'Signing in…' : 'Sign in'}</button>
+                <button className={`${btnPrimary} w-full`} disabled={busy}>{busy ? 'Signing inâ€¦' : 'Sign in'}</button>
             </form>
             <GoogleButton label="Continue with Google" />
         </Shell>
@@ -130,7 +130,7 @@ export function Register() {
                 <Field id="password" label="Password" type="password" autoComplete="new-password" value={f.password} onChange={set('password')} error={errors.password} />
                 <Field id="confirm" label="Confirm password" type="password" autoComplete="new-password" value={f.confirm} onChange={set('confirm')} error={errors.confirm} />
                 {errors.form && !errors.name && !errors.email && !errors.password && !errors.confirm && <p role="alert" className="mb-3 text-sm text-red-400">{errors.form}</p>}
-                <button className={`${btnPrimary} w-full`} disabled={busy}>{busy ? 'Creating…' : 'Create account'}</button>
+                <button className={`${btnPrimary} w-full`} disabled={busy}>{busy ? 'Creatingâ€¦' : 'Create account'}</button>
             </form>
             <GoogleButton label="Sign up with Google" />
         </Shell>
