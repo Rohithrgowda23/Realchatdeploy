@@ -18,7 +18,7 @@ export default function OAuthCallback() {
         const code = new URLSearchParams(window.location.search).get('code');
         window.history.replaceState({}, '', '/oauth/callback'); // remove the code from the address bar/history
         if (!code) { nav('/login?oauth_error=1&reason=failed', { replace: true }); return; }
-        api.post('/auth/oauth/exchange', { code })
+        api.post('/api/auth/oauth/exchange', { code })
             .then(({ data }) => { setAuth(data.token, data.user); nav(consumeReturnTo(), { replace: true }); })
             .catch((e) => setError(errMsg(e)));
     }, [nav, setAuth]);
