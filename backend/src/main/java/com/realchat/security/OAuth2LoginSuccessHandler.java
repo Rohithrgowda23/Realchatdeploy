@@ -18,11 +18,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
-/**
- * Runs after Spring Security has already validated the Google authorization code exchange, the ID token
- * (signature, issuer, audience, expiry), the state and the nonce. Nothing here trusts browser-supplied identity.
- * It never puts a RealChat JWT in the URL: it hands the SPA a single-use code to exchange.
- */
 @Component
 public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     private static final Logger log = LoggerFactory.getLogger(OAuth2LoginSuccessHandler.class);
