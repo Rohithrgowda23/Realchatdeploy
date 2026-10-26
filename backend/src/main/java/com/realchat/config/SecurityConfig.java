@@ -68,7 +68,7 @@ public class SecurityConfig {
                         ).permitAll()
 
                         // WebSocket authentication is handled separately
-                        .requestMatchers("/ws/**").permitAll()
+                        .requestMatchers("/ws", "/ws/**").permitAll()
 
                         .requestMatchers("/error").permitAll()
 
@@ -129,10 +129,7 @@ public class SecurityConfig {
     ) {
         CorsConfiguration cors = new CorsConfiguration();
 
-        cors.setAllowedOrigins(List.of(
-                origin,
-                "https://realchatdeploy.vercel.app"
-        ));
+        cors.setAllowedOrigins(List.of(origin));
 
         cors.setAllowedMethods(List.of(
                 "GET",
