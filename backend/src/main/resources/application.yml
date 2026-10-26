@@ -86,10 +86,10 @@ app:
 
   ai:
     mode: ${AI_MODE:disabled}
-    base-url: ${AI_BASE_URL:http://localhost:11434}
+    base-url: ${AI_BASE_URL:https://ollama.com/v1}
     api-key: ${AI_API_KEY:}
-    model: ${AI_MODEL:llama3.2}
-    timeout-seconds: 30
+    model: ${AI_MODEL:gemma4:31b}
+    timeout-seconds: 60
     translate-per-hour: 60
     summary-per-hour: 10
 
