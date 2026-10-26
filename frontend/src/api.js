@@ -1,8 +1,8 @@
-import axios from 'axios';
+﻿import axios from 'axios';
 
 // Token lives in sessionStorage: it is cleared when the tab closes and the JWT itself is short-lived (2h).
 // An httpOnly cookie would be safer against XSS but needs CSRF protection and cookie-based STOMP auth; see README.
-const api = axios.create({ baseURL: import.meta.env.VITE_API_URL || '/api' });
+const api = axios.create({ baseURL: import.meta.env.VITE_API_URL || 'https://realchatdeploy.onrender.com' });
 
 api.interceptors.request.use((c) => {
   const t = sessionStorage.getItem('token');
@@ -24,3 +24,4 @@ api.interceptors.response.use(
 
 export const errMsg = (e) => e.response?.data?.message || (e.request ? 'Cannot reach the server' : e.message) || 'Something went wrong';
 export default api;
+
