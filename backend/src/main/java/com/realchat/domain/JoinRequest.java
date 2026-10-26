@@ -10,7 +10,7 @@ public class JoinRequest {
     private Long inviteId;
     private String status;
     @Column(name = "pending_key")
-    private Integer pendingKey;
+    private Integer pendingKey;   // or Short, mapped to smallint
     private Instant createdAt;
     private Long decidedBy;
     private Instant decidedAt;

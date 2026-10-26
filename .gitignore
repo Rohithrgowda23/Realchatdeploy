@@ -1,15 +1,35 @@
-# secrets / local config
+
+# Java and Maven
+target/
+**/target/
+
+# IntelliJ
+.idea/
+*.iml
+
+# Secrets and environment files
 .env
 .env.*
 !.env.example
-set-env.ps1
-application-local.yml
-# build output & deps
-node_modules/
-dist/
-target/
-# uploads, logs, IDE
+
+# Uploaded files and logs
 uploads/
+**/uploads/
 *.log
-.idea/
-.vscode/
+
+# Frontend
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+
+# Local configuration
+application-local.yml
+application-local.properties
+
+# Git
+.git/
+
+# Secret and key files
+*.pem
+*.key
